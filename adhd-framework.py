@@ -9,24 +9,17 @@ from pathlib import Path
 import questionary
 from typing import List, Dict
 
-# Path constants (relative to script directory)
-PROJECT_TEMPLATES_DIR = "project_templates"
-MODULE_TEMPLATES_DIR = "module_templates"
-DEFAULT_PROJECT_TEMPLATE = "default"
-DEFAULT_MODULE_TEMPLATE = "default"
-DEFAULT_PROJECTS_DIR = str(Path.home() / "Projects")
+# Import the centralized manager instances
+from managers.init import cm
 
-# Global path variables to be initialized at runtime
-PATHS: Dict[str, Path] = {}
+project_root = Path(__file__).resolve().parent
 
-def init_paths():
-    """Initialize all absolute paths based on the script location"""
-    script_dir = Path(__file__).parent.absolute()
-    
-    PATHS["SCRIPT_DIR"] = script_dir
-    PATHS["PROJECT_TEMPLATES"] = script_dir / PROJECT_TEMPLATES_DIR
-    PATHS["MODULE_TEMPLATES"] = script_dir / MODULE_TEMPLATES_DIR
-    PATHS["DEFAULT_PROJECTS"] = Path(DEFAULT_PROJECTS_DIR)
+PATHS = {
+    "SCRIPT_DIR": Path(project_root),
+    "PROJECT_TEMPLATES": Path(os.path.join(project_root, cm.paths.project_templates.value)),
+    "MODULE_TEMPLATES": Path(os.path.join(project_root, cm.paths.module_templates.value)),
+    "DEFAULT_PROJECTS": Path(os.path.expanduser(cm.paths.default_projects.value))
+}
 
 def validate_project_name(name):
     """
@@ -51,13 +44,17 @@ def get_available_templates(templates_dir: Path) -> List[str]:
     
     return [item.name for item in templates_dir.iterdir() if item.is_dir()]
 
-def create_project(project_name, target_dir=None, project_template=DEFAULT_PROJECT_TEMPLATE, module_templates=None):
+def create_project(project_name, target_dir=None, project_template=None, module_templates=None):
     """
     Create a new project with the given name:
     1. Create the project directory
     2. Copy template files from project_templates/{project_template}
     3. Copy selected module templates into project module folder
     """
+    # Use default project template from config if not specified
+    if not project_template:
+        project_template = cm.defaults.project_template.value
+    
     # Define paths
     if target_dir:
         project_path = Path(target_dir) / project_name
@@ -95,7 +92,8 @@ def create_project(project_name, target_dir=None, project_template=DEFAULT_PROJE
         
         # Copy selected module templates into project module folder
         if not module_templates:
-            module_templates = [DEFAULT_MODULE_TEMPLATE]
+            default_module = cm.defaults.module_template.value
+            module_templates = [default_module]
             
         for module_template in module_templates:
             module_template_path = PATHS["MODULE_TEMPLATES"] / module_template
@@ -107,6 +105,10 @@ def create_project(project_name, target_dir=None, project_template=DEFAULT_PROJE
                 print(f"⚠️  Warning: Module template {module_template} not found.")
         
         print(f"✅ Project '{project_name}' created successfully at {project_path}")
+        print("\n✨✨✨")
+        print(f"cd {project_path}")
+        print("✨✨✨\n")
+        print("🚀 Happy coding!")
         return True
     
     except Exception as e:
@@ -114,9 +116,6 @@ def create_project(project_name, target_dir=None, project_template=DEFAULT_PROJE
         return False
 
 def main():
-    # Initialize paths at the start of the program
-    init_paths()
-    
     parser = argparse.ArgumentParser(
         description="✨ AI-Driven Highspeed Development Framework (ADHD-Framework) CLI ✨"
     )
@@ -162,13 +161,15 @@ def main():
             ).ask()
             
             if should_ask:
-                target_dir = questionary.text(
+                default_projects_dir = str(PATHS["DEFAULT_PROJECTS"])
+                target_dir = questionary.path(
                     "Enter target directory path:",
-                    default=DEFAULT_PROJECTS_DIR
+                    default=default_projects_dir,
+                    only_directories=True,  # Only show directories in autocompletion
                 ).ask()
                 
                 # Create target directory if it doesn't exist
-                target_path = Path(target_dir)
+                target_path = Path(os.path.expanduser(target_dir))
                 if not target_path.exists():
                     create_dir = questionary.confirm(
                         f"Directory {target_dir} doesn't exist. Create it?",
@@ -188,10 +189,11 @@ def main():
             return
         
         if not args.template:
+            default_project_template = cm.defaults.project_template.value
             project_template = questionary.select(
                 "🎨 Select a project template:",
                 choices=available_project_templates,
-                default=DEFAULT_PROJECT_TEMPLATE if DEFAULT_PROJECT_TEMPLATE in available_project_templates else available_project_templates[0]
+                default=default_project_template if default_project_template in available_project_templates else available_project_templates[0]
             ).ask()
         else:
             project_template = args.template
@@ -205,10 +207,11 @@ def main():
             print("⚠️  No module templates found in module_templates directory.")
             module_templates = []
         elif not args.modules:
+            default_module_template = cm.defaults.module_template.value
             module_templates = questionary.checkbox(
                 "📦 Select module templates to include:",
                 choices=available_module_templates,
-                default=[DEFAULT_MODULE_TEMPLATE] if DEFAULT_MODULE_TEMPLATE in available_module_templates else []
+                default=default_module_template if default_module_template in available_module_templates else []
             ).ask()
         else:
             module_templates = args.modules
