@@ -174,4 +174,5 @@ cython_debug/
 .pypirc
 
 # ADHD Framework Testing Folders for Template generation
-test/
+new-adhd-project/
+.adhd-venv
