@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-ADHD Framework CLI - Simple Template Generator
+AI Driven Highspeed Development Framework CLI - Simple Template Generator
 Clones template, applies module configuration, and initializes project.
 """
 
@@ -37,18 +37,21 @@ def list_template_sets():
         return []
     
     templates = []
-    for yaml_file in template_dir.glob("*.yaml"):
-        try:
-            with open(yaml_file, 'r') as f:
-                config = yaml.safe_load(f)
-                if isinstance(config, dict) and 'modules' in config:
-                    templates.append({
-                        'file': yaml_file.name,
-                        'name': config.get('name', yaml_file.stem),
-                        'description': config.get('description', 'No description')
-                    })
-        except Exception as e:
-            print(f"Warning: Could not read {yaml_file}: {e}")
+    for folder in template_dir.iterdir():
+        if folder.is_dir():
+            init_file = folder / "init.yaml"
+            if init_file.exists():
+                try:
+                    with open(init_file, 'r') as f:
+                        config = yaml.safe_load(f)
+                        if isinstance(config, dict) and 'modules' in config:
+                            templates.append({
+                                'folder': folder.name,
+                                'name': config.get('name', folder.name),
+                                'description': config.get('description', 'No description')
+                            })
+                except Exception as e:
+                    print(f"Warning: Could not read {init_file}: {e}")
     
     return templates
 
@@ -71,17 +74,17 @@ def choose_template_set():
             choice = input(f"\nChoose template set (1-{len(templates)}): ").strip()
             idx = int(choice) - 1
             if 0 <= idx < len(templates):
-                return templates[idx]['file']
+                return templates[idx]['folder']
             else:
                 print("Invalid choice!")
         except ValueError:
             print("Please enter a number!")
 
 
-def replace_init_yaml(project_path, template_set_file):
+def replace_init_yaml(project_path, template_set_folder):
     """Replace init.yaml with chosen template set content"""
     template_sets_dir = Path(__file__).parent / "template_sets"
-    template_file = template_sets_dir / template_set_file
+    template_file = template_sets_dir / template_set_folder / "init.yaml"
     init_file = Path(project_path) / "init.yaml"
     
     if not template_file.exists():
@@ -90,7 +93,7 @@ def replace_init_yaml(project_path, template_set_file):
     
     try:
         shutil.copy2(template_file, init_file)
-        print(f"✓ Replaced init.yaml with {template_set_file}")
+        print(f"✓ Replaced init.yaml with {template_set_folder}/init.yaml")
         return True
     except Exception as e:
         print(f"✗ Failed to replace init.yaml: {e}")
