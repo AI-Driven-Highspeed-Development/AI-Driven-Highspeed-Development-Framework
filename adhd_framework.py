@@ -201,16 +201,16 @@ class ADHDFramework:
             return False
     
     def run_project_init(self, project_path: str) -> bool:
-        """Run project_init.py in the new project"""
-        init_script = Path(project_path) / "project_init.py"
+        """Run project initialization via the new adhd_cli.py"""
+        cli_script = Path(project_path) / "adhd_cli.py"
         
-        if not init_script.exists():
-            print(f"✗ project_init.py not found in {project_path}")
+        if not cli_script.exists():
+            print(f"✗ adhd_cli.py not found in {project_path}")
             return False
         
-        print("Running project initialization...")
+        print("Running project initialization via ADHD CLI...")
         try:
-            subprocess.run([sys.executable, str(init_script)], 
+            subprocess.run([sys.executable, str(cli_script), "init"], 
                           cwd=project_path, check=True)
             print("✓ Project initialized successfully!")
             return True
@@ -314,7 +314,12 @@ EXAMPLES:
 DESCRIPTION:
     The ADHD Framework CLI helps you quickly create new projects using predefined
     template sets. It clones a base template, applies module configurations, and
-    initializes your project structure.
+    initializes your project structure using the integrated adhd_cli.py interface.
+    
+    After project creation, you can use the project's adhd_cli.py for:
+    - Refreshing modules: python adhd_cli.py refresh
+    - Listing modules: python adhd_cli.py list
+    - Module info: python adhd_cli.py info --module MODULE_NAME
     """
     print(help_text)
 
