@@ -315,27 +315,6 @@ DESCRIPTION:
     The ADHD Framework CLI helps you quickly create new projects using predefined
     template sets. It clones a base template, applies module configurations, and
     initializes your project structure.
-
-FEATURES:
-    • Automatic dependency management (no manual pip install needed)
-    • Smart Python version selection (best available < 3.13)
-    • Interactive template selection with default options
-    • Tab-completion for file paths
-    • Automatic directory creation
-    • Module-based project initialization
-    • Command-line argument support for automation
-    • Self-contained virtual environment
-
-DEPENDENCIES:
-    The script automatically installs and manages these dependencies:
-    • pyyaml (for YAML file processing)
-    • questionary (for interactive prompts)
-    
-PYTHON VERSION SELECTION:
-    Automatically finds and uses the best Python version:
-    • Scans system for Python 3.8+ but < 3.13
-    • Prefers Python 3.12.x (highest patch version)
-    • Falls back to 3.11.x, 3.10.x, etc.
     """
     print(help_text)
 
