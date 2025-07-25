@@ -1,4 +1,5 @@
-template: https://github.com/zaqxs123456/ADHD_default_project_template
+template: https://github.com/AI-Driven-Highspeed-Development/Default-Project-Template.git
+module-template: https://github.com/AI-Driven-Highspeed-Development/Default-Module-Template.git
 python-version: 
   lowest: 3.10
   highest: 3.12

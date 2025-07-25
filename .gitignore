@@ -175,4 +175,5 @@ cython_debug/
 
 # ADHD Framework Testing Folders for Template generation
 new-adhd-project/
+new-adhd-module/
 .adhd-venv
