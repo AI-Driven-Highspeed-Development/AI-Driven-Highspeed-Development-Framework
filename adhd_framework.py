@@ -14,6 +14,7 @@ import subprocess
 import shutil
 from typing import List, Optional
 from pathlib import Path
+from re import sub
 
 # Import our virtual environment manager
 from venv_ensurer import VenvEnsurer
@@ -286,9 +287,18 @@ class ADHDFramework:
         # Get module name (interactive or from parameter)
         if not module_name:
             module_name = self._get_user_input(
-                "Enter module name:",
-                "new-adhd-module"
+                "Enter module name (please use snake_case):",
+                "new_adhd_module"
             )
+            snake_module_name = '_'.join(
+                sub('([A-Z][a-z]+)', r' \1',
+                sub('([A-Z]+)', r' \1',
+                module_name.replace('-', ' ').replace('.', ' '))).split()).lower()
+            
+            if module_name != snake_module_name:
+                print(f"⚠️ Module name '{module_name}' is not in snake_case format. "
+                      f"✅ Will use '{snake_module_name}' instead.")
+                module_name = snake_module_name
         
         if not module_name:
             print("✗ Module name cannot be empty!")
@@ -320,6 +330,7 @@ class ADHDFramework:
             return False
         
         # Create module
+        print(f"\nYour new module will be named '{module_name}'")
         print(f"\nCreating module '{module_name}' at {module_path}")
         
         # 1. Clone module template
