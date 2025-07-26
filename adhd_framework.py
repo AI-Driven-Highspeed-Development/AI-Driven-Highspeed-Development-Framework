@@ -52,6 +52,7 @@ class ADHDFrameworkTemplateSet:
     folder: str = ""
     name: str = ""
     modules: list[str] = None
+    template_repo: str = ""
     description: str = ""
 
     def __post_init__(self):
@@ -63,14 +64,15 @@ class ADHDFrameworkTemplateSet:
             raise FileNotFoundError(f"init.yaml not found in {self.folder_path}")
         try:
             with open(init_file, 'r') as f:
-                config = yaml.safe_load(f)
-                if not isinstance(config, dict):
+                init_data = yaml.safe_load(f)
+                if not isinstance(init_data, dict):
                     raise ValueError(f"Invalid init.yaml format in {self.folder}")
                 if not self.name:
-                    self.name = config.get('name', self.folder)
+                    self.name = init_data.get('name', self.folder)
                 if self.modules is None:
-                    self.modules = config.get('modules', [])
-                self.description = config.get('description', 'No description')
+                    self.modules = init_data.get('modules', [])
+                self.description = init_data.get('description', 'No description')
+                self.template_repo = init_data.get('template_repo', '')
         except Exception as e:
             raise RuntimeError(f"Failed to load template set {self.folder}: {e}")
 
@@ -133,7 +135,8 @@ class ADHDFramework:
                     templates.append({
                         'folder': template_set.folder,
                         'name': template_set.name,
-                        'description': template_set.description
+                        'description': template_set.description,
+                        'template_repo': template_set.template_repo
                     })
                 except Exception as e:
                     print(f"Warning: Could not load template set {folder_path.name}: {e}")
@@ -205,6 +208,27 @@ class ADHDFramework:
         except Exception as e:
             print(f"✗ Failed to replace init.yaml: {e}")
             return False
+    
+    def get_template_repo_for_set(self, template_set_folder: str) -> str:
+        """Get the template repository URL for a specific template set"""
+        template_file = self.template_sets_dir / template_set_folder / "init.yaml"
+        
+        if not template_file.exists():
+            return self.template_url  # Return default if template set not found
+        
+        try:
+            with open(template_file, 'r') as f:
+                template_data = yaml.safe_load(f)
+                template_repo = template_data.get('template_repo', '')
+                
+                # If template_repo is specified and not empty, use it; otherwise use default
+                if template_repo and template_repo.strip():
+                    return template_repo.strip()
+                else:
+                    return self.template_url
+        except Exception as e:
+            print(f"Warning: Could not read template set config, using default template: {e}")
+            return self.template_url
     
     def run_project_init(self, project_path: str) -> bool:
         """Run project initialization via the new adhd_cli.py"""
@@ -395,11 +419,15 @@ class ADHDFramework:
         # Create project
         print(f"\nCreating project '{project_name}' at {project_path}")
         
-        # 1. Clone template
-        if not self.clone_template(str(project_path)):
+        # 1. Get the template repository for this template set
+        template_repo_url = self.get_template_repo_for_set(template_set)
+        print(f"Using template repository: {template_repo_url}")
+        
+        # 2. Clone template using the appropriate repository
+        if not self.clone_template(str(project_path), template_repo_url):
             return False
         
-        # 2. Replace init.yaml with chosen template set
+        # 3. Replace init.yaml with chosen template set
         if not self.replace_init_yaml(str(project_path), template_set):
             return False
         
