@@ -265,9 +265,9 @@ class ADHDFramework:
     def _get_module_type(self) -> Optional[str]:
         """Let user choose module type"""
         choices = [
-            "util - Utility module with helper functions",
-            "manager - Manager module for business logic and coordination",
-            "plugin - Plugin module for extending functionality"
+            "manager - For coordination of external or project-wide systems",
+            "plugin - For implementing specific functionality",
+            "util - For concise utility functions and helpers",
         ]
         
         selected = questionary.select(
