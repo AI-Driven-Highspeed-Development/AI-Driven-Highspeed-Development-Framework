@@ -199,9 +199,18 @@ class ADHDFramework:
             return False
         
         try:
-            shutil.copy2(template_file, init_file)
-            print(f"✓ Replaced init.yaml with {template_set_folder}/init.yaml")
-            return True
+            # Read the template init.yaml
+            yaml_file = YamlUtil.read_yaml(template_file)
+            yaml_file.set('template_repo', self.template_url)
+            
+            # Save the modified YAML to the project
+            if yaml_file.save(init_file):
+                print(f"✓ Replaced init.yaml with {template_set_folder}/init.yaml")
+                return True
+            else:
+                print(f"✗ Failed to save init.yaml to {init_file}")
+                return False
+                
         except Exception as e:
             print(f"✗ Failed to replace init.yaml: {e}")
             return False
@@ -416,6 +425,7 @@ class ADHDFramework:
         
         # 1. Get the template repository for this template set
         template_repo_url = self.get_template_repo_for_set(template_set)
+        
         print(f"Using template repository: {template_repo_url}")
         
         # 2. Clone template using the appropriate repository
