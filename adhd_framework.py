@@ -42,8 +42,8 @@ def ensure_venv_and_dependencies():
 ensure_venv_and_dependencies()
 
 # Now we can safely import the dependencies
-import yaml
 import questionary
+from yaml_util import YamlUtil, YamlFile
 
 @dataclass
 class ADHDFrameworkTemplateSet:
@@ -62,19 +62,17 @@ class ADHDFrameworkTemplateSet:
         init_file = self.folder_path / "init.yaml"
         if not init_file.exists():
             raise FileNotFoundError(f"init.yaml not found in {self.folder_path}")
-        try:
-            with open(init_file, 'r') as f:
-                init_data = yaml.safe_load(f)
-                if not isinstance(init_data, dict):
-                    raise ValueError(f"Invalid init.yaml format in {self.folder}")
-                if not self.name:
-                    self.name = init_data.get('name', self.folder)
-                if self.modules is None:
-                    self.modules = init_data.get('modules', [])
-                self.description = init_data.get('description', 'No description')
-                self.template_repo = init_data.get('template_repo', '')
-        except Exception as e:
-            raise RuntimeError(f"Failed to load template set {self.folder}: {e}")
+        
+        yaml_file = YamlUtil.read_yaml(init_file)
+        if not yaml_file:
+            raise ValueError(f"Invalid init.yaml format in {self.folder}")
+        
+        if not self.name:
+            self.name = yaml_file.get('name', self.folder)
+        if self.modules is None:
+            self.modules = yaml_file.get('modules', [])
+        self.description = yaml_file.get('description', 'No description')
+        self.template_repo = yaml_file.get('template_repo', '')
 
 
 class ADHDFramework:
@@ -93,17 +91,16 @@ class ADHDFramework:
         if not self.init_file.exists():
             raise FileNotFoundError("✗ init.yaml not found!")
         
-        try:
-            with open(self.init_file, 'r') as f:
-                config = yaml.safe_load(f)
-                self.template_url = config.get('template')
-                self.module_template_url = config.get('module-template')
-                if not self.template_url:
-                    raise ValueError("✗ No template URL found in init.yaml!")
-                if not self.module_template_url:
-                    raise ValueError("✗ No module-template URL found in init.yaml!")
-        except Exception as e:
-            raise RuntimeError(f"✗ Failed to read init.yaml: {e}")
+        yaml_file = YamlUtil.read_yaml(self.init_file)
+        if not yaml_file:
+            raise RuntimeError("✗ Failed to read init.yaml")
+        
+        self.template_url = yaml_file.get('template')
+        self.module_template_url = yaml_file.get('module-template')
+        if not self.template_url:
+            raise ValueError("✗ No template URL found in init.yaml!")
+        if not self.module_template_url:
+            raise ValueError("✗ No module-template URL found in init.yaml!")
     
     def clone_template(self, destination: str, template_url: str = None) -> bool:
         """Clone the template repository to destination"""
@@ -216,18 +213,17 @@ class ADHDFramework:
         if not template_file.exists():
             return self.template_url  # Return default if template set not found
         
-        try:
-            with open(template_file, 'r') as f:
-                template_data = yaml.safe_load(f)
-                template_repo = template_data.get('template_repo', '')
-                
-                # If template_repo is specified and not empty, use it; otherwise use default
-                if template_repo and template_repo.strip():
-                    return template_repo.strip()
-                else:
-                    return self.template_url
-        except Exception as e:
-            print(f"Warning: Could not read template set config, using default template: {e}")
+        yaml_file = YamlUtil.read_yaml(template_file)
+        if not yaml_file:
+            print(f"Warning: Could not read template set config, using default template")
+            return self.template_url
+        
+        template_repo = yaml_file.get('template_repo', '')
+        
+        # If template_repo is specified and not empty, use it; otherwise use default
+        if template_repo and template_repo.strip():
+            return template_repo.strip()
+        else:
             return self.template_url
     
     def run_project_init(self, project_path: str) -> bool:
@@ -294,13 +290,12 @@ class ADHDFramework:
         }
         
         init_file = module_path / "init.yaml"
-        try:
-            with open(init_file, 'w') as f:
-                yaml.dump(init_content, f, default_flow_style=False, sort_keys=False)
+        yaml_file = YamlFile(init_content)
+        if yaml_file.save(init_file):
             print(f"✓ Created init.yaml with module configuration")
             return True
-        except Exception as e:
-            print(f"✗ Failed to create init.yaml: {e}")
+        else:
+            print(f"✗ Failed to create init.yaml")
             return False
     
     def create_module(self, module_name: Optional[str] = None, 
