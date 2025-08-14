@@ -3,5 +3,4 @@ description: The rawest form of freedom with minimal things in it.
 
 modules:
   - https://github.com/AI-Driven-Highspeed-Development/Config-Manager.git
-  - https://github.com/AI-Driven-Highspeed-Development/Path-Resolver-Util.git
   - https://github.com/AI-Driven-Highspeed-Development/Logger-Util.git
