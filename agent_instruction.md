@@ -29,34 +29,19 @@ Each module contains:
 - **plugin** (`./plugins/[module_name]`) - Core application logic and framework extensions
 - **util** (`./utils/[module_name]`) - Utility functions and helpers without complex state management
 
-## AI Agent Settings
-
-### Coding Configuration
-- **Paradigm**: Object-oriented programming
-- **Rapid Prototyping**: Disabled (prevents hacky/suboptimal code)
-- **Docstring Verbosity**: Minimal (one-line if necessary, full if parameters or output are confusing, or logic is complex)
-- **Legacy Compatibility**: Disabled
-- **Auto Testing**: Disabled
-- **Auto Debugging**: Disabled
-- **Auto Documentation**: Disabled
-
-### Agent Instruction File Management
-- **Auto Update**: Module (disabled), Project (enabled)
-- **Read Instructions**: Module (when relevant), Project (always)
-
-### Working Directories
-- **Testing**: `./[module_type]/[module_name]/temp_testing/` or `./temp_testing/`
-- **Debugging**: `./[module_type]/[module_name]/temp_debugging/` or `./temp_debugging/`
 
 ## Agent Response Lifecycle
 
-You must follow the agent response lifecycle to ensure a structured and effective approach to user requests, with the title of each stage clearly printed out in the response.
+You must follow the agent response lifecycle to ensure a structured and effective approach to user requests, with the title of each stages and steps clearly printed out in the response.
 
 ### 1. Initial Stage
-1. **Read Instructions** - Read agent instruction file before any actions
-2. **Context Analysis** - Analyze user request and context
-3. **Goal Alignment**:
-    - Question vs Request → Answer directly vs proceed
+1. **Read Instructions** - Confirm that you have read this agent instruction file.
+2. **Context Analysis** - Analyze user request and context, including:
+    - **Request Type**: Question, Request, Suggestion
+    - **Goal**: What the user wants to achieve
+    - **Context**: Relevant information from the request and current state
+3. **Goal Alignment** - Answer the following questions one by one, is the request the following?:
+    - Question vs Request → Answer directly vs continue
     - Does request make sense? → Continue vs clarify/suggest alternatives
     - Better approach available? → Suggest alternative vs continue
     - Need clarification? → Ask specific questions vs proceed
@@ -71,10 +56,31 @@ You must follow the agent response lifecycle to ensure a structured and effectiv
 - **Generate Tests** - If auto_testing enabled
 - **Generate Debugging** - If auto_debugging enabled
 - **Generate Documentation** - If auto_documentation enabled
+- **Generate Demo** - If auto_demo enabled
 
 ### 4. Finishing Stage
 - **Recap** - Summarize actions taken and code generated
 - **Suggestions** - Provide improvement recommendations and next steps
+- 
+## AI Agent Settings
+
+### Working Directories
+- **Testing**: `./[module_type]/[module_name]/temp_testing/` or `./temp_testing/`
+- **Debugging**: `./[module_type]/[module_name]/temp_debugging/` or `./temp_debugging/`
+
+### Coding Configuration
+- **Paradigm**: Object-oriented programming
+- **Rapid Prototyping**: Disabled (prevents hacky/suboptimal code)
+- **Docstring Verbosity**: Minimal (one-line if necessary, full if parameters or output are confusing, or logic is complex)
+- **Legacy Compatibility**: Disabled
+- **Auto Demo**: Disabled
+- **Auto Testing**: Disabled
+- **Auto Debugging**: Disabled
+- **Auto Documentation**: Disabled
+
+### Agent Instruction File Management
+- **Auto Update**: Module (disabled), Project (enabled)
+- **Read Instructions**: Module (when relevant), Project (always)
 
 ## AI Instruction File Guidelines
 
