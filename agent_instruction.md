@@ -69,3 +69,16 @@ You must follow the agent response lifecycle to ensure a structured and effectiv
 - **Auto Testing**: Disabled
 - **Auto Debugging**: Disabled
 - **Auto Documentation**: Disabled
+
+## Usage of Config Manager
+1. `python adhd_cli.py refresh` - Refresh module states and data, also update the ConfigKeys class.
+2. Then access like:
+   ```python
+   from managers.config_manager import ConfigManager
+
+   cm = ConfigManager()
+   api_key_for_abc_plugin = cm.config.ABCPlugin.api_key
+   timeout_setting_of_xyz_function_in_def_util = cm.config.DEFUtil.xyz_function.timeout
+   ```
+3. DO NOT modify the `ConfigManager` or `ConfigKeys` classes directly.
+4. DO NOT access like `cm.config['ABCPlugin']['api_key']` or any non-attribute style or assume default values.
