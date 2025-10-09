@@ -373,6 +373,19 @@ class ADHDFramework:
         print(f"Location: {module_path}")
         print(f"Type: {module_type}")
         print(f"Folder path: {module_type}/{module_name}")
+
+        # Optional GitHub repository initialization
+        try:
+            remote_url = questionary.text(
+                "Enter GitHub repository URL (leave blank to skip git init/push):",
+                default=""
+            ).ask()
+            if remote_url:
+                self._initialize_git_repo(module_path, remote_url.strip())
+            else:
+                print("(Skipping git setup – no URL provided)")
+        except Exception as e:
+            print(f"⚠️  Skipped git initialization: {e}")
         return True
     
     def create_project(self, project_name: Optional[str] = None, 
@@ -442,6 +455,41 @@ class ADHDFramework:
         
         print(f"\n🎉 Project '{project_name}' created successfully!")
         print(f"Location: {project_path}")
+
+        # Optional GitHub repository initialization
+        try:
+            remote_url = questionary.text(
+                "Enter GitHub repository URL (leave blank to skip git init/push):",
+                default=""
+            ).ask()
+            if remote_url:
+                self._initialize_git_repo(project_path, remote_url.strip())
+            else:
+                print("(Skipping git setup – no URL provided)")
+        except Exception as e:
+            print(f"⚠️  Skipped git initialization: {e}")
+        return True
+
+    def _initialize_git_repo(self, project_path: Path, remote_url: str) -> bool:
+        """Initialize a git repo, commit, and push to provided remote URL (main branch)."""
+        print("\n🐙 Setting up git repository...")
+        commands = [
+            ["git", "init"],
+            ["git", "add", "."],
+            ["git", "commit", "-m", "init commit"],
+            ["git", "branch", "-M", "main"],
+            ["git", "remote", "add", "origin", remote_url],
+            ["git", "push", "-u", "origin", "main"]
+        ]
+        for cmd in commands:
+            try:
+                subprocess.run(cmd, cwd=project_path, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            except subprocess.CalledProcessError as e:
+                print(f"✗ Git step failed: {' '.join(cmd)}")
+                print(e.stderr.decode(errors='ignore'))
+                print("⚠️  Git initialization aborted (project files unaffected). You can retry manually.")
+                return False
+        print("✓ Git repository initialized and pushed to 'main'.")
         return True
 
 

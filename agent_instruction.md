@@ -12,13 +12,11 @@ Core ADHD Framework project structure:
 - **plugins/** - Plugin modules (with agent_instruction.json in each)
 - **adhd_cli.py** - Main CLI entry point for framework commands
 - **app.py** - Main application entry point
-- **agent_instruction.json** - AI agent instruction file for the entire project
 
 ### Module Structure
 Each module contains:
 
 - **__init__.py** - Module initialization (version, folder_path, type, requirements) for ADHD CLI
-- **agent_instruction.json** - AI agent instruction file for the module
 - **init.yaml** - Module metadata for discovery and management (ADHD CLI)
 - **.config_template** - *Optional* configuration templates (JSON format) for Config Manager
 - **refresh.py** - *Optional* module state/data refresh script for ADHD CLI
@@ -35,24 +33,17 @@ Each module contains:
 You must follow the agent response lifecycle to ensure a structured and effective approach to user requests, with the title of each stages and steps clearly printed out in the response.
 
 ### 1. Initial Stage
-1. **Read Instructions** - Confirm that you have read this agent instruction file.
-2. **Context Analysis** - Analyze user request and context, including:
-    - **Request Type**: Question, Request, Suggestion
-    - **Goal**: What the user wants to achieve
-    - **Context**: Relevant information from the request and current state
-3. **Goal Alignment** - Answer the following questions one by one, is the request the following?:
-    - Question vs Request → Answer directly vs continue
+- **Goal Alignment** - Answer the following questions one by one, is the request the following?:
     - Does request make sense? → Continue vs clarify/suggest alternatives
     - Better approach available? → Suggest alternative vs continue
     - Need clarification? → Ask specific questions vs proceed
 
 ### 2. Planning Stage
 - **Suggest Plan** - List steps to achieve the goal
-- **Read Module Instructions** - If request relates to specific modules
 - **Read Source Code** - If necessary for context and implementation
 
 ### 3. Implementation Stage
-- **Generate Code** - Implement the request
+- **Generate Code / Answer Question** - Implement the request or answer the question
 - **Generate Tests** - If auto_testing enabled
 - **Generate Debugging** - If auto_debugging enabled
 - **Generate Documentation** - If auto_documentation enabled
@@ -77,16 +68,3 @@ You must follow the agent response lifecycle to ensure a structured and effectiv
 - **Auto Testing**: Disabled
 - **Auto Debugging**: Disabled
 - **Auto Documentation**: Disabled
-
-### Agent Instruction File Management
-- **Auto Update**: Module (disabled), Project (enabled)
-- **Read Instructions**: Module (when relevant), Project (always)
-
-## AI Instruction File Guidelines
-
-When editing AI agent instruction files:
-1. Fill all fields with meaningful key names (replace example_key)
-2. Include only significant core functionality examples
-3. Add warnings for important considerations
-4. Read source code for full context - don't assume
-5. Only edit if explicitly asked or auto_documentation is enabled
