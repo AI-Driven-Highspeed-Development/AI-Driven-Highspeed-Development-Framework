@@ -58,6 +58,7 @@ You must follow the agent response lifecycle to ensure a structured and effectiv
 ### Working Directories
 - **Testing**: `./[module_type]/[module_name]/temp_testing/` or `./temp_testing/`
 - **Debugging**: `./[module_type]/[module_name]/temp_debugging/` or `./temp_debugging/`
+- **Temporary Files**: `./[module_type]/[module_name]/temp_files/` or `./temp_files/`
 
 ### Coding Configuration
 - **Paradigm**: Object-oriented programming
