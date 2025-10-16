@@ -307,6 +307,51 @@ class ADHDFramework:
             print(f"✗ Failed to create init.yaml")
             return False
     
+    def _add_generated_files_to_new_module(self, module_name: Optional[str] = None, 
+                     module_location: Optional[str] = None) -> None:
+        """Populate the new module with generated scaffolding files."""
+        if not module_name or not module_location:
+            print("⚠️  Missing module name or location; skipping extra file generation.")
+            return
+
+        module_path = Path(module_location)
+        if not module_path.exists():
+            print(f"⚠️  Module path {module_path} not found; skipping extra file generation.")
+            return
+
+        template_dir = self.framework_dir / "gen_template"
+        config_template_src = template_dir / ".config_template.txt"
+        module_demo_src = template_dir / "module_demo.py.txt"
+
+        if not config_template_src.exists() or not module_demo_src.exists():
+            print("⚠️  Template files are missing; skipping extra file generation.")
+            return
+
+        def to_camel_case(name: str) -> str:
+            parts = name.replace('-', '_').replace('.', '_').split('_')
+            return ''.join(part.capitalize() for part in parts if part)
+
+        
+        def replace_and_save(src_path: Path, dest_path: Path):
+            replacements = {
+                "{{module_name}}": module_name,
+                "{{ModuleNameToCamelCase}}": to_camel_case(module_name),
+            }
+            with open(src_path, "r", encoding="utf-8") as src:
+                content = src.read()
+            for placeholder, value in replacements.items():
+                content = content.replace(placeholder, value)
+            with open(dest_path, "w", encoding="utf-8") as dest:
+                dest.write(content)
+
+        try:
+            replace_and_save(config_template_src, module_path / ".config_template")
+            print(f"✓ Added .config_template")
+            replace_and_save(module_demo_src, module_path / f"{module_name}.py")
+            print(f"✓ Added {module_name}.py")
+        except Exception as error:
+            print(f"⚠️  Failed to add generated files: {error}")
+    
     def create_module(self, module_name: Optional[str] = None, 
                      module_location: Optional[str] = None, 
                      module_type: Optional[str] = None) -> bool:
@@ -368,6 +413,9 @@ class ADHDFramework:
         # 2. Create custom init.yaml for module
         if not self._create_module_init_yaml(module_path, module_name, module_type):
             return False
+        
+        # 3. Add needed generated files 
+        self._add_generated_files_to_new_module(module_name, str(module_path))
         
         print(f"\n🎉 Module '{module_name}' created successfully!")
         print(f"Location: {module_path}")
