@@ -231,19 +231,3 @@ def ensure_venv(requirements: List[str] = None, venv_name: str = ".adhd-venv") -
     ensurer = VenvEnsurer(venv_name=venv_name, requirements=requirements)
     if not ensurer.is_in_managed_venv():
         ensurer.ensure_venv_and_restart(__file__, sys.argv[1:])
-
-
-if __name__ == "__main__":
-    # Demo/test functionality
-    ensurer = VenvEnsurer()
-    info = ensurer.get_venv_info()
-    
-    print("Virtual Environment Information:")
-    for key, value in info.items():
-        print(f"  {key}: {value}")
-    
-    if not ensurer.is_in_managed_venv():
-        print("\nTesting Python selection...")
-        python_path = ensurer._select_best_python()
-        if python_path:
-            print(f"Best Python: {python_path}")
