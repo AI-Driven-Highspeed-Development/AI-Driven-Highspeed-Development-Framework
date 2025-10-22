@@ -9,7 +9,7 @@ This script automatically manages its own virtual environment and dependencies.
 import sys
 from typing import Optional
 from pathlib import Path
-from framework.cli import ADHDFrameworkCLI
+from framework.cli import ADHDFrameworkCLI as cli
 from framework.project_creator import ProjectCreator
 from framework.module_creator import ModuleCreator
 from framework.utils import load_config
@@ -83,7 +83,6 @@ class ADHDFramework:
         )
 
 def main():
-    cli = ADHDFrameworkCLI()
     parser = cli.parser()
     args = parser.parse_args()
     

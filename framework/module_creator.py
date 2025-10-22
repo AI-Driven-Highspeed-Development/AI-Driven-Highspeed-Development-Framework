@@ -89,7 +89,11 @@ class ModuleCreator:
             return False
 
         self._add_generated_files_to_new_module(module_name, module_path)
-        self._add_generated_files_to_specific_module_type(module_name, module_path, module_type)
+        self._add_generated_files_to_specific_module_type(
+            module_name,
+            module_path,
+            module_type,
+        )
 
         print(f"\n🎉 Module '{module_name}' created successfully!")
         print(f"Location: {module_path}")
@@ -138,49 +142,52 @@ class ModuleCreator:
         return False
 
     def _replace_placeholders(self, content: str, module_name: str) -> str:
-            replacements = {
-                "{{module_name}}": module_name,
-                "{{ModuleNameToCamelCase}}": self._to_camel_case(module_name),
-            }
-            for placeholder, value in replacements.items():
-                content = content.replace(placeholder, value)
-            return content
+        replacements = {
+            "{{module_name}}": module_name,
+            "{{ModuleNameToCamelCase}}": self._to_camel_case(module_name),
+        }
+        for placeholder, value in replacements.items():
+            content = content.replace(placeholder, value)
+        return content
 
     def _add_generated_files_to_new_module(self, module_name: str, module_path: Path) -> None:
         template_dir = self.framework_dir / "module_additional_files"
-        config_template_src = template_dir / ".config_template.txt"
-        module_demo_src = template_dir / "module_demo.py.txt"
-
-        if not config_template_src.exists() or not module_demo_src.exists():
+        if not template_dir.exists():
             print("⚠️  Template files are missing; skipping extra file generation.")
             return
 
-        try:
-            config_content = config_template_src.read_text(encoding="utf-8")
-            config_content = self._replace_placeholders(config_content, module_name)
-            (module_path / ".config_template").write_text(config_content, encoding="utf-8")
-            print("✓ Added .config_template")
+        self._add_generated_files_from_directory(template_dir, module_name, module_path)
 
-            demo_content = module_demo_src.read_text(encoding="utf-8")
-            demo_content = self._replace_placeholders(demo_content, module_name)
-            (module_path / f"{module_name}.py").write_text(demo_content, encoding="utf-8")
-            print(f"✓ Added {module_name}.py")
-        except Exception as error:
-            print(f"⚠️  Failed to add generated files: {error}")
-            
     def _add_generated_files_to_specific_module_type(self, module_name: str, module_path: Path, module_type: str) -> None:
         template_dir = self.framework_dir / "module_additional_files" / module_type
-        
+
         if not template_dir.exists():
             return
-        
-        for template_file in template_dir.iterdir():
+
+        self._add_generated_files_from_directory(template_dir, module_name, module_path)
+
+    def _add_generated_files_from_directory(
+        self,
+        template_dir: Path,
+        module_name: str,
+        module_path: Path,
+    ) -> None:
+        for template_file in sorted(template_dir.iterdir()):
+            if template_file.is_dir():
+                continue
+
             try:
                 content = template_file.read_text(encoding="utf-8")
                 content = self._replace_placeholders(content, module_name)
-                output_name = template_file.name.removesuffix('.txt')
-                (module_path / output_name).write_text(content, encoding="utf-8")
-                print(f"✓ Added {output_name}")
+
+                output_name = self._replace_placeholders(template_file.name, module_name)
+                if output_name.endswith(".txt"):
+                    output_name = output_name[:-4]
+
+                destination = module_path / output_name
+                action = "Replaced" if destination.exists() else "Added"
+                destination.write_text(content, encoding="utf-8")
+                print(f"✓ {action} {output_name}")
             except Exception as error:
                 print(f"⚠️  Failed to add {template_file.name}: {error}")
 

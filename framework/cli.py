@@ -8,7 +8,7 @@ class ADHDFrameworkCLI:
         pass
 
     @staticmethod
-    def show_help(self):
+    def show_help():
         """Display help information"""
         help_text = """
     🚀 ADHD Framework CLI - AI Driven Highspeed Development Framework
@@ -57,7 +57,7 @@ class ADHDFrameworkCLI:
         print(help_text)
     
     @staticmethod
-    def parser(self) -> argparse.ArgumentParser:
+    def parser() -> argparse.ArgumentParser:
         """Set up and return the argument parser for the CLI."""
         parser = argparse.ArgumentParser(
             description="ADHD Framework CLI", 

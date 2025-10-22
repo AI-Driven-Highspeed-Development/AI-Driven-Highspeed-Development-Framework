@@ -1,0 +1,35 @@
+"""Minimal MCP server demo
+
+This example mirrors the official weather MCP guide but keeps only a single
+`add` tool to illustrate tool registration and execution.
+"""
+
+from __future__ import annotations
+
+from mcp.server.fastmcp import FastMCP
+
+# Instantiate the FastMCP server. The identifier should match the module name so
+# hosts can distinguish multiple servers. Replace {{module_name}} with your
+# actual module slug at generation time.
+mcp = FastMCP("{{module_name}}")
+
+
+@mcp.tool()
+async def add(left: float, right: float) -> float:
+    """Return the sum of two numbers."""
+
+    # FastMCP inspects type hints and docstrings to build the tool schema.
+    # The body is intentionally minimal for a quick sanity check.
+    return left + right
+
+
+def main() -> None:
+    """Entry point for launching the MCP server over stdio."""
+
+    # Note: Avoid print() or other stdout writes; FastMCP uses stdout for
+    # JSON-RPC messages. Stick to logging to stderr if you need diagnostics.
+    mcp.run(transport="stdio")
+
+
+if __name__ == "__main__":
+    main()

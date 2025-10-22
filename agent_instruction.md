@@ -39,6 +39,7 @@ You must follow the agent response lifecycle to ensure a structured and effectiv
     - Does request make sense? → Continue vs clarify/suggest alternatives
     - Better approach available? → Suggest alternative vs continue
     - Need clarification? → Ask specific questions vs proceed
+    - Note: User is not always right, you must be the safety guard to ensure quality and feasibility.
 
 ### 2. Planning Stage
 - **Suggest Plan** - List steps to achieve the goal

@@ -1,5 +1,5 @@
 {
-    "module_name": {{module_name}},
+    "module_name": "{{module_name}}",
     "path": {
         "data": "./project/data/{{module_name}}"
     }
