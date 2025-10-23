@@ -1,87 +1,47 @@
-# ADHD Framework Agent Instructions
+# ADHD Framework Agent Instructions (Concise)
 
-## Project Structure
+## Project overview
+- Directories: `framework/` (core), `project/` (app code), `managers/`, `utils/`, `plugins/`, `mcps/` (4 types of modules)
+- Entry points: `adhd_cli.py` (framework CLI), `app.py` (application for the specific project)
+- Module files: `__init__.py`, `init.yaml`, optional `.config_template` (JSON), optional `refresh.py`
+- Module types: `manager`, `plugin`, `util`, `mcp`
 
-### Root Directory
-Core ADHD Framework project structure:
+## Agent response lifecycle (always use these headings)
+1) Initial
+- Read Instructions; if a module is targeted, read its instructions
+- Context Analysis: request type + relevant context (active file, workspace, OS)
+- Goal Alignment (DO NOT assume user is always right):
+  - Does request make sense? continue vs clarify
+  - Better approach? propose alternatives; challenge assumptions politely
+  - Need clarification? ask up to 3 targeted questions if needed (scope, paths, module type, acceptance criteria)
+  - Safety check (API leakage, security, permissions); then Decision: Proceed / Ask / Suggest Alternative
 
-- **framework/** - Core framework files (rarely modified)
-- **project/** - Application logic codebase
-- **managers/** - Manager modules (with agent_instruction.json in each)
-- **utils/** - Utility modules (with agent_instruction.json in each)
-- **plugins/** - Plugin modules (with agent_instruction.json in each)
-- **mcps/** - MCP (Model Context Protocol) server modules (with agent_instruction.json in each)
-- **adhd_cli.py** - Main CLI entry point for framework commands
-- **app.py** - Main application entry point
+2) Planning
+- Suggest Plan: concise steps
+- Workspace Awareness: verify target paths and module placement
+- Read Source Code as needed
 
-### Module Structure
-Each module contains:
+3) Implementation
+- Generate Code / Answer Question
+- Optional: tests/debug/docs/demo if enabled
+- Small, low‑risk adjacent improvements allowed
+- No major changes or rewrites without explicit permission
 
-- **__init__.py** - Module initialization (version, folder_path, type, requirements) for ADHD CLI
-- **init.yaml** - Module metadata for discovery and management (ADHD CLI)
-- **.config_template** - *Optional* configuration templates (JSON format) for Config Manager
-- **refresh.py** - *Optional* module state/data refresh script for ADHD CLI
+4) Finishing
+- Recap: what changed and why
+- Suggestions: next steps
+- Traceback to Decision (from Initial)
 
-### Valid Module Types
+## Clarifying triggers (ask before proceeding when unclear)
+- Target file/module path, module type, naming
+- External credentials/config expectations
+- Acceptance criteria, performance, or test coverage
 
-- **manager** (`./managers/[module_name]`) - Coordinating external/project-wide systems and shared resources
-- **plugin** (`./plugins/[module_name]`) - Core application logic and framework extensions
-- **util** (`./utils/[module_name]`) - Utility functions and helpers without complex state management
-- **mcp** (`./mcps/[module_name]`) - Model Context Protocol server implementations
+## Key workflows (general across ADHD projects)
+- Project ops via `adhd_cli.py` (init/refresh/upgrade/install); use `--help` to discover commands
+- Modules live under `managers/`, `plugins/`, `utils/`, `mcps/`; import via package paths under `project/`
 
-
-## Agent Response Lifecycle
-
-You must follow the agent response lifecycle to ensure a structured and effective approach to user requests, with the title of each stages and steps clearly printed out in the response.
-
-### 1. Initial Stage
-- **Goal Alignment** - Answer the following questions one by one, is the request the following?:
-    - Does request make sense? → Continue vs clarify/suggest alternatives
-    - Better approach available? → Suggest alternative vs continue
-    - Need clarification? → Ask specific questions vs proceed
-    - Note: User is not always right, you must be the safety guard to ensure quality and feasibility.
-
-### 2. Planning Stage
-- **Suggest Plan** - List steps to achieve the goal
-- **Read Source Code** - If necessary for context and implementation
-
-### 3. Implementation Stage
-- **Generate Code / Answer Question** - Implement the request or answer the question
-- **Generate Tests** - If auto_testing enabled
-- **Generate Debugging** - If auto_debugging enabled
-- **Generate Documentation** - If auto_documentation enabled
-- **Generate Demo** - If auto_demo enabled
-
-### 4. Finishing Stage
-- **Recap** - Summarize actions taken and code generated
-- **Suggestions** - Provide improvement recommendations and next steps
-- 
-## AI Agent Settings
-
-### Working Directories
-- **Testing**: `./[module_type]/[module_name]/temp_testing/` or `./temp_testing/`
-- **Debugging**: `./[module_type]/[module_name]/temp_debugging/` or `./temp_debugging/`
-- **Temporary Files**: `./[module_type]/[module_name]/temp_files/` or `./temp_files/`
-
-### Coding Configuration
-- **Paradigm**: Object-oriented programming
-- **Rapid Prototyping**: Disabled (prevents hacky/suboptimal code)
-- **Docstring Verbosity**: Minimal (one-line if necessary, full if parameters or output are confusing, or logic is complex)
-- **Legacy Compatibility**: Disabled
-- **Auto Demo**: Disabled
-- **Auto Testing**: Disabled
-- **Auto Debugging**: Disabled
-- **Auto Documentation**: Disabled
-
-## Usage of Config Manager
-1. `python adhd_cli.py refresh` - Refresh module states and data, also update the ConfigKeys class.
-2. Then access like:
-   ```python
-   from managers.config_manager import ConfigManager
-
-   cm = ConfigManager()
-   api_key_for_abc_plugin = cm.config.ABCPlugin.api_key
-   timeout_setting_of_xyz_function_in_def_util = cm.config.DEFUtil.xyz_function.timeout
-   ```
-3. DO NOT modify the `ConfigManager` or `ConfigKeys` classes directly.
-4. DO NOT access like `cm.config['ABCPlugin']['api_key']` or any non-attribute style or assume default values.
+## Agent defaults
+- OOP; minimal docstrings, always include type hints
+- No rapid prototyping; legacy compatibility off
+- Auto Demo/Testing/Debugging/Documentation off

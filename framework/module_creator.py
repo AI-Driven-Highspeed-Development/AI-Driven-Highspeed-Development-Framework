@@ -21,7 +21,7 @@ class ModuleCreator:
     DEFAULT_MODULE_TYPES: List[Tuple[str, str]] = [
         ("manager", "For coordination of external or project-wide systems"),
         ("plugin", "For implementing specific functionality"),
-        ("util", "For concise utility functions and helpers"),
+        ("util", "For concise utility functions and helpers enhancing framework capabilities"),
         ("mcp", "For Model Context Protocol server implementations"),
     ]
 
@@ -181,7 +181,10 @@ class ModuleCreator:
                 content = self._replace_placeholders(content, module_name)
 
                 output_name = self._replace_placeholders(template_file.name, module_name)
-                if output_name.endswith(".txt"):
+
+                exception_txt = ["requirements.txt"]
+
+                if output_name.endswith(".txt") and output_name not in exception_txt:
                     output_name = output_name[:-4]
 
                 destination = module_path / output_name
