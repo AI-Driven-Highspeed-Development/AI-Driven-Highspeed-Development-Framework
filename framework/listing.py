@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import shutil
-import subprocess
 from pathlib import Path
 from typing import Dict, List, Optional
 
@@ -121,65 +119,35 @@ class ModuleListing:
         listing_filename = self.LISTING_FILENAME
 
         if YamlUtil.is_url(repo_url):
-            # Direct link to YAML file
             if repo_url.endswith((".yaml", ".yml")):
-                yaml_file = YamlUtil.read_yaml_from_url(repo_url)
+                yaml_file = YamlUtil.read_yaml_from_url(repo_url, allow_clone_fallback=False)
                 if yaml_file:
                     return yaml_file
 
-            # Github convenience helper
             raw_url = YamlUtil.construct_github_raw_url(repo_url, listing_filename)
             if raw_url:
-                yaml_file = YamlUtil.read_yaml_from_url(raw_url)
+                yaml_file = YamlUtil.read_yaml_from_url(raw_url, allow_clone_fallback=False)
                 if yaml_file:
                     return yaml_file
 
-            # Generic URL fallback assuming listing.yaml at the root
             direct_url = repo_url.rstrip("/") + f"/{listing_filename}"
-            yaml_file = YamlUtil.read_yaml_from_url(direct_url)
+            yaml_file = YamlUtil.read_yaml_from_url(direct_url, allow_clone_fallback=False)
             if yaml_file:
                 return yaml_file
 
-        # Fallback to cloning (required for SSH URLs)
         return self._load_listing_via_clone(repo_url, listing_filename)
 
     def _load_listing_via_clone(self, repo_url: str, listing_filename: str) -> Optional[YamlFile]:
-        repo_name = YamlUtil.get_repo_name(repo_url) or "listing_repo"
-        target_dir = self.clone_tmp_root / f"{repo_name}_listing"
-        shutil.rmtree(target_dir, ignore_errors=True)
-        self.clone_tmp_root.mkdir(parents=True, exist_ok=True)
+        yaml_file = YamlUtil.read_yaml_from_url_via_clone(
+            repo_url,
+            listing_filename,
+            clone_root=self.clone_tmp_root,
+        )
 
-        try:
-            subprocess.run(
-                ["git", "clone", "--depth", "1", repo_url, str(target_dir)],
-                check=True,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-            )
-        except subprocess.CalledProcessError as error:
-            stderr = error.stderr.decode(errors="ignore") if error.stderr else str(error)
-            print(f"⚠️  Failed to clone listing repository '{repo_url}': {stderr.strip()}")
-            shutil.rmtree(target_dir, ignore_errors=True)
-            self._cleanup_tmp_root()
-            return None
+        if not yaml_file:
+            print(f"⚠️  Failed to retrieve '{listing_filename}' from repository '{repo_url}'.")
 
-        listing_path = target_dir / listing_filename
-        try:
-            yaml_file = YamlUtil.read_yaml(listing_path)
-        except FileNotFoundError:
-            print(f"⚠️  '{listing_filename}' not found in repository '{repo_url}'.")
-            yaml_file = None
-
-        shutil.rmtree(target_dir, ignore_errors=True)
-        self._cleanup_tmp_root()
         return yaml_file
-
-    def _cleanup_tmp_root(self) -> None:
-        try:
-            if self.clone_tmp_root.exists() and not any(self.clone_tmp_root.iterdir()):
-                self.clone_tmp_root.rmdir()
-        except OSError:
-            pass
 
     def _print_group(self, group_name: str, modules: List[Dict[str, str]]) -> None:
         header = f"📦 {group_name} ({len(modules)} module{'s' if len(modules) != 1 else ''})"

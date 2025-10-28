@@ -10,10 +10,10 @@ import questionary
 
 from framework.framework_commons.yaml_util import YamlUtil
 from .utils import (
-    clone_template,
     get_user_input,
     get_user_path,
     initialize_git_repo,
+    repo_cloner,
 )
 
 
@@ -204,7 +204,7 @@ class ProjectCreator:
         template_repo_url = self.get_template_repo_for_set(template_set)
         print(f"Using template repository: {template_repo_url}")
 
-        if not clone_template(str(project_path), template_repo_url):
+        if not repo_cloner.clone(str(project_path), template_repo_url):
             return False
 
         if not self.replace_init_yaml(str(project_path), template_set):

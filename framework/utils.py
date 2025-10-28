@@ -2,29 +2,17 @@
 
 from __future__ import annotations
 
-import shutil
 import subprocess
 from pathlib import Path
 from typing import Optional, Tuple
 
 import questionary
 
+from .framework_commons.repo_cloner import RepoCloner
 from .framework_commons.yaml_util import YamlUtil
 
 
-def clone_template(destination: str, template_url: str) -> bool:
-	"""Clone a template repository to the destination and strip its git history."""
-	print(f"Cloning template from {template_url}...")
-	try:
-		subprocess.run(["git", "clone", template_url, destination], check=True)
-		git_dir = Path(destination) / ".git"
-		if git_dir.exists():
-			shutil.rmtree(git_dir)
-		print(f"✓ Template cloned to {destination}")
-		return True
-	except subprocess.CalledProcessError as error:
-		print(f"✗ Failed to clone template: {error}")
-		return False
+repo_cloner = RepoCloner()
 
 
 def initialize_git_repo(project_path: Path, remote_url: str) -> bool:

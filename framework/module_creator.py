@@ -8,10 +8,10 @@ import questionary
 
 from framework.framework_commons.yaml_util import YamlFile
 from .utils import (
-    clone_template,
     get_user_input,
     get_user_path,
     initialize_git_repo,
+    repo_cloner,
 )
 
 
@@ -82,7 +82,7 @@ class ModuleCreator:
         print(f"\nYour new module will be named '{module_name}'")
         print(f"\nCreating module '{module_name}' at {module_path}")
 
-        if not clone_template(str(module_path), self.module_template_url):
+        if not repo_cloner.clone(str(module_path), self.module_template_url):
             return False
 
         if not self._create_module_init_yaml(module_path, module_name, module_type):
