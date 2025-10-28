@@ -26,12 +26,14 @@ class ADHDFrameworkCLI:
         -l, --location <PATH>        Specify project/module location (default: current directory)
         -t, --template-set <NAME>    Specify template set for projects (default: "default")
         --type <TYPE>                Specify module type (util, manager, plugin, mcp)
+        --list, -ls                  List all available modules from configured sources
         -h, --help                   Show this help message
 
     EXAMPLES:
         python adhd-framework.py                                    # Show this help
         python adhd-framework.py --create                           # Interactive project creation
         python adhd-framework.py --module                           # Interactive module creation
+        python adhd-framework.py --list                             # List available modules
         python adhd-framework.py -c -n "my-app"                     # Create project with specific name
         python adhd-framework.py -m -n "my-util" --type "util"      # Create module with specific type
         python adhd-framework.py -c -n "my-app" -l "~/dev"          # Create project with name and location
@@ -74,7 +76,9 @@ class ADHDFrameworkCLI:
         parser.add_argument('-t', '--template-set', type=str, 
                         help='Template set name for projects (default: "default")')
         parser.add_argument('--type', type=str, 
-                        help='Module type (util, manager, plugin)')
+                        help='Module type (util, manager, plugin, mcp)')
+        parser.add_argument('--list', '-ls', action='store_true', 
+                        help='List all available modules from configured sources')
         parser.add_argument('-h', '--help', action='store_true', 
                         help='Show help message')
         return parser

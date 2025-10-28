@@ -12,6 +12,7 @@ from pathlib import Path
 from framework.cli import ADHDFrameworkCLI as cli
 from framework.project_creator import ProjectCreator
 from framework.module_creator import ModuleCreator
+from framework.listing import ModuleListing
 from framework.utils import load_config
 
 # Import our virtual environment manager
@@ -55,6 +56,7 @@ class ADHDFramework:
             framework_dir=self.framework_dir,
             module_template_url=self.module_template_url,
         )
+        self.module_listing = ModuleListing(self.framework_dir)
 
     def create_module(
         self,
@@ -81,6 +83,10 @@ class ADHDFramework:
             project_location=project_location,
             template_set_name=template_set_name,
         )
+    
+    def list_available_modules(self) -> bool:
+        """List all available modules from configured listing sources."""
+        return self.module_listing.list_available_modules()
 
 def main():
     parser = cli.parser()
@@ -98,6 +104,8 @@ def main():
             framework.create_project(args.name, args.location, getattr(args, 'template_set'))
         elif args.module:
             framework.create_module(args.name, args.location, getattr(args, 'type'))
+        elif getattr(args, 'list', False):
+            framework.list_available_modules()
         else:
             print("Unknown command. Use --help for usage information.")
             cli.show_help()

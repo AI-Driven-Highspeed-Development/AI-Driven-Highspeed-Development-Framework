@@ -1,5 +1,6 @@
 template: https://github.com/AI-Driven-Highspeed-Development/Default-Project-Template.git
 module-template: https://github.com/AI-Driven-Highspeed-Development/Default-Module-Template.git
+
 python-version: 
-  lowest: 3.10
+  lowest: 3.9
   highest: 3.12
