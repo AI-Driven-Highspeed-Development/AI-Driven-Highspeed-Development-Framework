@@ -7,7 +7,7 @@ import subprocess
 from pathlib import Path
 from typing import Dict, List, Optional
 
-from .yaml_util import YamlUtil, YamlFile
+from .framework_commons.yaml_util import YamlUtil, YamlFile
 
 
 class ModuleListing:

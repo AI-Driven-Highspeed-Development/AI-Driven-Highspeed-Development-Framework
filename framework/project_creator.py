@@ -8,7 +8,7 @@ from typing import List, Optional
 
 import questionary
 
-from framework.yaml_util import YamlUtil
+from framework.framework_commons.yaml_util import YamlUtil
 from .utils import (
     clone_template,
     get_user_input,

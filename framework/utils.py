@@ -9,7 +9,7 @@ from typing import Optional, Tuple
 
 import questionary
 
-from .yaml_util import YamlUtil
+from .framework_commons.yaml_util import YamlUtil
 
 
 def clone_template(destination: str, template_url: str) -> bool:

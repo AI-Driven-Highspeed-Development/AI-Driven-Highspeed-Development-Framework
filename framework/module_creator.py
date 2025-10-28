@@ -6,7 +6,7 @@ from typing import List, Optional, Tuple
 
 import questionary
 
-from framework.yaml_util import YamlFile
+from framework.framework_commons.yaml_util import YamlFile
 from .utils import (
     clone_template,
     get_user_input,
