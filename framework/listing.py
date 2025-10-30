@@ -120,18 +120,15 @@ class ModuleListing:
 
         if YamlUtil.is_url(repo_url):
             if repo_url.endswith((".yaml", ".yml")):
-                yaml_file = YamlUtil.read_yaml_from_url(repo_url, allow_clone_fallback=False)
+                yaml_file = YamlUtil.read_yaml_from_url_direct(repo_url, "")
                 if yaml_file:
                     return yaml_file
 
-            raw_url = YamlUtil.construct_github_raw_url(repo_url, listing_filename)
-            if raw_url:
-                yaml_file = YamlUtil.read_yaml_from_url(raw_url, allow_clone_fallback=False)
-                if yaml_file:
-                    return yaml_file
-
-            direct_url = repo_url.rstrip("/") + f"/{listing_filename}"
-            yaml_file = YamlUtil.read_yaml_from_url(direct_url, allow_clone_fallback=False)
+            yaml_file = YamlUtil.read_yaml_from_url(
+                repo_url,
+                listing_filename,
+                allow_clone_fallback=False,
+            )
             if yaml_file:
                 return yaml_file
 
